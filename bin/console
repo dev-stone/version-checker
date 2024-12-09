@@ -1,0 +1,3 @@
+#!/usr/bin/env php
+<?php
+echo 'Symfony 7.0.0 (env: prod, debug: false)';

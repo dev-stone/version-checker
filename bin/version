@@ -1,0 +1,57 @@
+#!/usr/bin/env php
+<?php
+
+use GuzzleHttp\Client;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$url = 'https://symfony.com/releases.json';
+
+$client = new Client();
+$response = $client->request('GET', $url);
+
+$body = $response->getBody();
+$versions = json_decode($body, true);
+
+$stableVersion = $versions['latest_stable_version'];
+$supportedVersions = $versions['supported_versions'];
+array_shift($supportedVersions);
+$supportedLatestVersion = $supportedVersions[0];
+
+$output = shell_exec('bin/console --version');
+if ($output === null) {
+    echo 'Failed to execute the command.'.PHP_EOL;
+    return 1;
+}
+
+$pattern = '/Symfony\s+([\d.]+)/';
+$result = preg_match($pattern, $output, $matches);
+if (!$result) {
+    echo 'Version not resolved from command.'.PHP_EOL;
+    return 1;
+}
+
+$currentVersion = $matches[1];
+
+[$major, $minor, $patch] = explode('.', $currentVersion);
+$currentMinor = $major . '.' . $minor;
+
+echo "Current version: $currentVersion".PHP_EOL;
+echo "Stable version: $stableVersion".PHP_EOL;
+echo "Supported latest version: $supportedLatestVersion".PHP_EOL;
+
+if (version_compare($currentMinor, $supportedLatestVersion,  '<')) {
+    echo 'Current version is not maintained'.PHP_EOL;
+    return 1;
+}
+
+if (version_compare($currentMinor, $stableVersion, '<')) {
+    echo 'Current version is not stable'.PHP_EOL;
+}
+
+if (version_compare($currentMinor, $stableVersion, '=')) {
+    echo 'Current version is stable'.PHP_EOL;
+    return 0;
+}
+
+return 0;
