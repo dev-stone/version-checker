@@ -1,17 +1,13 @@
 #!/usr/bin/env php
 <?php
 
+use Arlauskas\VersionChecker\CheckerClient;
 use GuzzleHttp\Client;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$url = 'https://symfony.com/releases.json';
-
-$client = new Client();
-$response = $client->request('GET', $url);
-
-$body = $response->getBody();
-$versions = json_decode($body, true);
+$client = new CheckerClient(new Client());
+$versions = $client->requestVersions();
 
 $stableVersion = $versions['latest_stable_version'];
 $supportedVersions = $versions['supported_versions'];
