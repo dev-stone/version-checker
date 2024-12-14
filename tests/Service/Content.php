@@ -1,41 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace Arlauskas\VersionChecker\Tests;
+namespace VersionChecker\Tests\Service;
 
-use Arlauskas\VersionChecker\CheckerClient;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
-
-class CheckerClientTest extends TestCase
+class Content
 {
-    private CheckerClient $checkerClient;
-    private Client|MockObject $client;
-
-    public function testRequestVersions(): void
+    public static function symfonyReleasesContent(): string
     {
-        $response = new Response(200, [], $this->symfonyReleasesContent());
-        $this->client
-            ->expects(self::once())
-            ->method('request')
-            ->willReturn($response)
-        ;
-
-        $versions = $this->checkerClient->requestVersions();
-        $this->assertIsArray($versions);
+        return json_encode(self::symfonyReleasesArray(), JSON_THROW_ON_ERROR);
     }
 
-    protected function setUp(): void
+    public static function symfonyReleasesArray(): array
     {
-        $this->client = $this->createMock(Client::class);
-        $this->checkerClient = new CheckerClient($this->client);
-    }
-
-    private function symfonyReleasesContent(): string
-    {
-        $response = [
+        return [
             'symfony_versions' => [
                 'lts' => '6.4.16',
                 'stable' => '7.2.0',
@@ -79,7 +56,5 @@ class CheckerClientTest extends TestCase
                 '7.3'
             ]
         ];
-
-        return json_encode($response, JSON_THROW_ON_ERROR);
     }
 }

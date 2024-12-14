@@ -1,23 +1,24 @@
 <?php
 declare(strict_types=1);
 
-namespace Arlauskas\VersionChecker;
+namespace VersionChecker\Service;
 
 use GuzzleHttp\Client;
+use VersionChecker\Dto\SymfonyVersions;
 
 class CheckerClient
 {
     private string $url = 'https://symfony.com/releases.json';
 
-    public function __construct(private Client $client)
+    public function __construct(private Client $client, private CheckerSerializer $serializer)
     {
     }
 
-    public function requestVersions(): array
+    public function requestVersions(): SymfonyVersions
     {
         $response = $this->client->request('GET', $this->url);
         $body = $response->getBody()->getContents();
 
-        return json_decode($body, true);
+        return $this->serializer->deserializeVersions($body);
     }
 }

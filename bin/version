@@ -1,16 +1,21 @@
 #!/usr/bin/env php
 <?php
 
-use Arlauskas\VersionChecker\CheckerClient;
+use VersionChecker\Service\CheckerClient;
 use GuzzleHttp\Client;
+use VersionChecker\Service\CheckerSerializer;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$client = new CheckerClient(new Client());
+$serializer = new CheckerSerializer();
+$serializer->defaultSerializer();
+
+$client = new CheckerClient(new Client(), $serializer);
 $versions = $client->requestVersions();
 
-$stableVersion = $versions['latest_stable_version'];
-$supportedVersions = $versions['supported_versions'];
+$stableVersion = $versions->getLatestStableVersion();
+$supportedVersions = $versions->getSupportedVersions();
+
 array_shift($supportedVersions);
 $supportedLatestVersion = $supportedVersions[0];
 
